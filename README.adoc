@@ -1,7 +1,7 @@
-== Spring Cloud Data Flow Server - Local with Simple Store Storage (S3) Support
+== Spring Cloud Data Flow Server - Local with Simple Storage Service (S3) App Registry Support
 
 The Data Flow Server implementation that extends the https://github.com/spring-cloud/spring-cloud-dataflow/tree/master/spring-cloud-dataflow-server-local[Spring Cloud Data Flow Server - Local]
-with S3 apps registry support.
+allowing the http://docs.aws.amazon.com/AmazonS3/latest/dev/Welcome.html[Simple Storage Server (S3)] to be used as Application Registry in addition to the default Maven registry.
 Allows registering apps http://docs.spring.io/spring-cloud-dataflow/docs/1.0.0.RELEASE/reference/html/getting-started-deploying-spring-cloud-dataflow.html#_deploying_local[stored in maven repositories] as well as S3 (Simple Store Storage)
 
 This server is intended for development use only.
@@ -34,17 +34,15 @@ $ java -jar spring-cloud-dataflow-shell/target/spring-cloud-dataflow-shell-<vers
 $ dataflow:>app register --name my-processor --type processor  --uri s3://my-bucket/snapshot/io/pivotal/my-processor/0.0.3-SNAPSHOT/my-processor-0.0.3-20160714.133004-1.jar
 ----
 
-== Provide AWS S3 Credentials
+== AWS S3 Access Credentials
 
 Credentials would be needed to access the Amazon S3 app store. A credentials provider chain will be used that searches for credentials in this order:
 
-. Environment Variables - **AWS_ACCESS_KEY_ID** and **AWS_SECRET_KEY**
-. Java System Properties - **aws.accessKeyId** and **aws.secretKey**
-. Credential profiles file at the default location (**~/.aws/credentials**) shared by all AWS SDKs and the AWS CLI
-. Instance Profile Credentials - delivered through the Amazon EC2 metadata service
+* Environment Variables - **AWS_ACCESS_KEY_ID** and **AWS_SECRET_KEY**
+* Java System Properties - **aws.accessKeyId** and **aws.secretKey**
+* Credential profiles file at the default location (**~/.aws/credentials**) shared by all AWS SDKs and the AWS CLI
+* Instance Profile Credentials - delivered through the Amazon EC2 metadata service
 
-If no credentials are found in the chain, the server will attempt to work in an anonymous mode where requests aren't signed. For example:
-
-. If an Amazon S3 bucket has __Permission#Read__ permission for the __GroupGrantee#AllUsers__ group, the SCDF server can get app jar without credentials.
+If no credentials are found in the chain, the server will attempt to work in an anonymous mode where requests aren't signed. For example if an Amazon S3 bucket has __Permission#Read__ permission for the __GroupGrantee#AllUsers__ group, the SCDF server can get app jar without credentials.
 
 You can force the server to operate in an anonymous mode, and skip the credentials provider chain, by passing in **null** for the credentials.
