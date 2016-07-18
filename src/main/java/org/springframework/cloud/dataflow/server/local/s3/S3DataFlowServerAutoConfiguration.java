@@ -28,7 +28,6 @@ import org.springframework.core.Ordered;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.util.StringUtils;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GroupGrantee;
@@ -36,8 +35,6 @@ import com.amazonaws.services.s3.model.Permission;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.Nullable;
 
 /**
  *  Allows registering apps stored in maven repositories as well as S3 (Simple Store Storage)
@@ -90,7 +87,7 @@ public class S3DataFlowServerAutoConfiguration {
   }
 
   @Bean
-  public SimpleStorageResourceLoaderEx s3Loader() {
+  public SimpleStorageResourceLoaderEx s3ResourceLoader() {
     return new SimpleStorageResourceLoaderEx(amazonS3Client());
   }
 
@@ -107,7 +104,7 @@ public class S3DataFlowServerAutoConfiguration {
   @Bean
   public DelegatingResourceLoader delegatingResourceLoader(MavenResourceLoader mavenResourceLoader) {
     Map<String, ResourceLoader> loaders = new HashMap<>();
-    loaders.put("s3", s3Loader());
+    loaders.put("s3", s3ResourceLoader());
     loaders.put("maven", mavenResourceLoader);
     return new DelegatingResourceLoader(loaders);
   }
