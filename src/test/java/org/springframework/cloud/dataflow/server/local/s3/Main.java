@@ -4,7 +4,7 @@ import org.springframework.cloud.deployer.resource.support.DelegatingResourceLoa
 import org.springframework.core.io.Resource;
 
 /**
- * Created by tzoloc on 7/16/16.
+ * Use -Daws.accessKeyId=YOUR-ACCESS-KEY -Daws.secretKey=YOUR-SECRET-KEY to authenticate
  */
 public class Main {
   public static void main(String[] args) {

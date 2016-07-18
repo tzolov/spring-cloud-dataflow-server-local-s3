@@ -15,6 +15,7 @@
  */
 package org.springframework.cloud.dataflow.server.local.s3;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.aws.core.io.s3.SimpleStorageResourceLoaderEx;
@@ -25,13 +26,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StringUtils;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.Permission;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.Nullable;
 
 /**
  *  Allows registering apps stored in maven repositories as well as S3 (Simple Store Storage)
@@ -41,6 +47,7 @@ import java.util.Map;
  * credentials provider chain will be used that searches for credentials in
  * this order:
  * <ul>
+ * <li>Command line Properties - --aws.accessKeyId and --aws.secretKey</li>
  * <li>Environment Variables - AWS_ACCESS_KEY_ID and AWS_SECRET_KEY</li>
  * <li>Java System Properties - aws.accessKeyId and aws.secretKey</li>
  * <li>Credential profiles file at the default location (~/.aws/credentials) shared by all AWS SDKs and the AWS CLI</li>
@@ -66,6 +73,12 @@ import java.util.Map;
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 public class S3DataFlowServerAutoConfiguration {
 
+  @Value("${aws.accessKeyId:null}")
+  private String accessKeyId;
+
+  @Value("${aws.secretKey:null}")
+  private String secretKey;
+
   @Bean
   public MavenResourceLoader mavenResourceLoader(MavenProperties properties) {
     return new MavenResourceLoader(properties);
@@ -78,8 +91,17 @@ public class S3DataFlowServerAutoConfiguration {
 
   @Bean
   public SimpleStorageResourceLoaderEx s3Loader() {
-    //BasicAWSCredentials credentials = new BasicAWSCredentials("key", "secret");
-    return new SimpleStorageResourceLoaderEx(new AmazonS3Client());
+    return new SimpleStorageResourceLoaderEx(amazonS3Client());
+  }
+
+  @Bean
+  public AmazonS3Client amazonS3Client() {
+
+    if (!StringUtils.isEmpty(accessKeyId) && !StringUtils.isEmpty(secretKey)) {
+      return new AmazonS3Client(new BasicAWSCredentials(accessKeyId, secretKey));
+    }
+
+    return new AmazonS3Client();
   }
 
   @Bean

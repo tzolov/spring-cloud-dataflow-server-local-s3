@@ -19,7 +19,7 @@ This server is intended for development use only.
 . Start the Local Data Flow Server application:
 +
 ----
-java -Daws.accessKeyId=<your AWS access key> -Daws.secretKey=<your AWS secret key> -jar spring-cloud-dataflow-server-local-s3/target/spring-cloud-dataflow-server-local-s3-<version>.jar
+java -jar spring-cloud-dataflow-server-local-s3/target/spring-cloud-dataflow-server-local-s3-<version>.jar --aws.accessKeyId=<Your-AWS-Access-Key> --aws.secretKey=<Your-AWS-Secret-Key>
 ----
 +
 . Start the shell
@@ -38,6 +38,7 @@ $ dataflow:>app register --name my-processor --type processor  --uri s3://my-buc
 
 Credentials would be needed to access the Amazon S3 app store. A credentials provider chain will be used that searches for credentials in this order:
 
+* Spring Boot Command line Properties - **--aws.accessKeyId** and **--aws.secretKey**
 * Environment Variables - **AWS_ACCESS_KEY_ID** and **AWS_SECRET_KEY**
 * Java System Properties - **aws.accessKeyId** and **aws.secretKey**
 * Credential profiles file at the default location (**~/.aws/credentials**) shared by all AWS SDKs and the AWS CLI
