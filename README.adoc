@@ -6,35 +6,52 @@ Allows registering apps http://docs.spring.io/spring-cloud-dataflow/docs/1.0.0.R
 
 This server is intended for development use only.
 
-== Start the Data Flow Server and Shell
-
-. Start Kafka locally (e.g. `kafka-server-start.sh /usr/local/etc/kafka/server.properties`)
-. Start Redis locally via `redis-server`
-. Build from the spring-cloud-dataflow root directory:
+== Build
+* Build from the spring-cloud-dataflow root directory:
 +
 ----
 ./mvnw clean install
 ----
-+
-. Start the Local Data Flow Server application:
-+
+
+== How to Use
+* Start Kafka locally (e.g. `kafka-server-start.sh /usr/local/etc/kafka/server.properties`)
+* Start Redis locally via `redis-server`
+
+=== Use static jars stored in S3
+* Start the Local Data Flow Server application:
+Provide the S3 credentials (e.g. --aws.accessKeyId=<Your-AWS-Access-Key> --aws.secretKey=<Your-AWS-Secret-Key>)
 ----
 java -jar spring-cloud-dataflow-server-local-s3/target/spring-cloud-dataflow-server-local-s3-<version>.jar --aws.accessKeyId=<Your-AWS-Access-Key> --aws.secretKey=<Your-AWS-Secret-Key>
 ----
-+
-. Start the shell
-+
+* Start the shell
 ----
 $ java -jar spring-cloud-dataflow-shell/target/spring-cloud-dataflow-shell-<version>.jar
 ----
-+
-. Register app from S3
-+
+* Register app from S3
 ----
 $ dataflow:>app register --name my-processor --type processor  --uri s3://my-bucket/snapshot/io/pivotal/my-processor/0.0.3-SNAPSHOT/my-processor-0.0.3-20160714.133004-1.jar
 ----
 
-== AWS S3 Access Credentials
+=== Use jars from S3 Maven Repository
+* Start the Local Data Flow Server application:
+Provide the S3 credentials and S3 maven repository location: `--s3.maven=s3://<bucket-name>/[snapshot|release]`
+----
+java -jar spring-cloud-dataflow-server-local-s3/target/spring-cloud-dataflow-server-local-s3-<version>.jar --aws.accessKeyId=<Your-AWS-Access-Key> --aws.secretKey=<Your-AWS-Secret-Key> --s3.maven=s3://my-s3-bucket/snapshot
+----
+* Start the shell
+----
+$ java -jar spring-cloud-dataflow-shell/target/spring-cloud-dataflow-shell-<version>.jar
+----
+* Register app S3 maven resource using the `s3-maven` protocol.
+----
+$ dataflow:>app register --name my-processor --type processor  --uri s3-maven://io.pivotal.walbrook:myprocessor:0.0.3-SNAPSHOT
+----
+Later will resolve the most recent my-repository artifact.
+
+== Configuration
+You need to provide S3 access credentials. In addition if yo use the s3 maven repository you have to provide it location too.
+
+=== AWS S3 Access Credentials
 
 Credentials would be needed to access the Amazon S3 app store. A credentials provider chain will be used that searches for credentials in this order:
 
@@ -47,3 +64,9 @@ Credentials would be needed to access the Amazon S3 app store. A credentials pro
 If no credentials are found in the chain, the server will attempt to work in an anonymous mode where requests aren't signed. For example if an Amazon S3 bucket has __Permission#Read__ permission for the __GroupGrantee#AllUsers__ group, the SCDF server can get app jar without credentials.
 
 You can force the server to operate in an anonymous mode, and skip the credentials provider chain, by passing in **null** for the credentials.
+
+=== AWS S3 Maven Repository
+
+If you use the https://github.com/spring-projects/aws-maven[S3 Maven Repository] to deploy your build artifacts then you can
+use the `s3-maven://` protocol tor resolve artifact from this repository using the groupId:artifactId:version schema.
+For this you have to set s3 maven location like this: `--s3.maven=s3://<bucket-name>/[snapshot|release]`
